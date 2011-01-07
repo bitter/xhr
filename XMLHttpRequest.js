@@ -154,7 +154,7 @@ module.exports = XMLHttpRequest = (function() {
           this._asBlob = v;
         }
       },
-      _followRedirects: __(false), followRedirects: {configurable : false, enumerable: true,
+      _followRedirects: __(true), followRedirects: {configurable : false, enumerable: true,
         get: function() { return this._followRedirects; },
         set: function(v) {
           if(this.readyState != XMLHttpRequest.OPENED || this._vars.sendflag) throw new Error('INVALID_STATE_ERR: DOM Exception 11');
@@ -255,7 +255,7 @@ module.exports = XMLHttpRequest = (function() {
       this._vars.request = null;
       this._timeout = 0;
       this._asBlob = false;
-      this._followRedirects = false;
+      this._followRedirects = true;
       this._withCredentials = false;
       this._vars.sendflag = false;
       this._vars.response = null;
