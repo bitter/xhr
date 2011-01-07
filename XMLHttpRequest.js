@@ -202,7 +202,15 @@ module.exports = XMLHttpRequest = (function() {
       __emit: _(function(type,ev) {
         this.emit( type , ev );
         if(this['on' + type]) this['on' + type](ev);
-      })
+      }),
+      // Non-standard stuff
+      _filterHeaders: __(true), filterHeaders: {configurable : false, enumerable: true,
+        get: function() { return this._filterHeaders; },
+        set: function(v) {
+          if(this.readyState != XMLHttpRequest.UNSENT || this._vars.sendflag) throw new Error('INVALID_STATE_ERR: DOM Exception 11');
+          this._filterHeaders = v;
+        }
+      }
     });
     this.onloadstart = null;
     this.onprogress = null;
@@ -266,7 +274,8 @@ module.exports = XMLHttpRequest = (function() {
       if(this._vars.sendflag) throw new Error('INVALID_STATE_ERR: DOM Exception 11');
       for(i in header) if(header.charCodeAt(i) > 0XFF) throw new Error('SYNTAX_ERR: DOM Exception 12 - invalid header ' + header);
       for(i in value) if(value.charCodeAt(i) > 0XFF) throw new Error('SYNTAX_ERR: DOM Exception 12 - invalid value ' + header);
-      if(['accept-charset','accept-encoding','access-control-request-headers','access-control-request-method',
+      if(this._filterHeaders &&
+         ['accept-charset','accept-encoding','access-control-request-headers','access-control-request-method',
           'connection','content-length','cookie','cookie2','content-transfer-encoding','date','expect','host',
           'keep-alive','origin','referer','te','trailer','transfer-encoding','upgrade','user-agent','via']
       .indexOf(header.toLowerCase()) > -1) return;
@@ -316,7 +325,7 @@ module.exports = XMLHttpRequest = (function() {
       if(this.readyState <= 1 || this._vars.errorflag) return null;
       for(i in header) if(header.charCodeAt(i) > 0XFF) return null;
       header = header.toLowerCase();
-      if(['set-cookie', 'set-cookie2'].indexOf(header) > -1) return null;
+      if(this.filterHeaders && ['set-cookie', 'set-cookie2'].indexOf(header) > -1) return null;
       if(!this._vars.responseHeaders[header]) return null;
       if(Array.isArray(this._vars.responseHeaders[header])) return this._vars.responseHeaders[header].join(', ');
       return this._vars.responseHeaders[header];
@@ -325,7 +334,7 @@ module.exports = XMLHttpRequest = (function() {
       if(this.readyState <= 1 || this._vars.errorflag) return null;
       var out = [], _$ = this;
       Object.keys(this._vars.responseHeaders).forEach(function(k) {
-        if(!(['set-cookie', 'set-cookie2'].indexOf(k) > -1)) {
+        if(!(this.filterHeaders && ['set-cookie', 'set-cookie2'].indexOf(k) > -1)) {
           var v = _$._vars.responseHeaders[k], va = Array.isArray(v) ? va : [v];
           va.forEach(function(v2) {
             out.push(k);
