@@ -316,6 +316,7 @@ module.exports = XMLHttpRequest = (function() {
       if(this.readyState <= 1 || this._vars.errorflag) return null;
       for(i in header) if(header.charCodeAt(i) > 0XFF) return null;
       header = header.toLowerCase();
+      if(['set-cookie', 'set-cookie2'].indexOf(header) > -1) return null;
       if(!this._vars.responseHeaders[header]) return null;
       if(Array.isArray(this._vars.responseHeaders[header])) return this._vars.responseHeaders[header].join(', ');
       return this._vars.responseHeaders[header];
@@ -327,6 +328,8 @@ module.exports = XMLHttpRequest = (function() {
         var v = _$._vars.responseHeaders[k];
         out[k] = Array.isArray(v) ? v.join(', ') : v;
       });
+      delete out['set-cookie'];
+      delete out['set-cookie2'];
       return out;
     },
     overrideMimeType: function(mime) {
