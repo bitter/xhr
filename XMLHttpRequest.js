@@ -323,14 +323,19 @@ module.exports = XMLHttpRequest = (function() {
     },
     getAllResponseHeaders: function() {
       if(this.readyState <= 1 || this._vars.errorflag) return null;
-      var out = {}, _$ = this;
+      var out = [], _$ = this;
       Object.keys(this._vars.responseHeaders).forEach(function(k) {
-        var v = _$._vars.responseHeaders[k];
-        out[k] = Array.isArray(v) ? v.join(', ') : v;
+        if(!(['set-cookie', 'set-cookie2'].indexOf(k) > -1)) {
+          var v = _$._vars.responseHeaders[k], va = Array.isArray(v) ? va : [v];
+          va.forEach(function(v2) {
+            out.push(k);
+            out.push(": ");
+            out.push(v2);
+            out.push("\r\n");
+          });
+        }
       });
-      delete out['set-cookie'];
-      delete out['set-cookie2'];
-      return out;
+      return out.join("");
     },
     overrideMimeType: function(mime) {
       // nothing one can really implement here..
