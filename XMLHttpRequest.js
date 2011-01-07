@@ -46,7 +46,7 @@ module.exports = XMLHttpRequest = (function() {
         if(force || xhr._vars.abortsend) {
           response.removeAllListeners('end');
           response.removeAllListeners('data');
-          response.destroy();
+          response.connection.destroy();
         }
       };
       if(xhr.followRedirects && [301,302,303,307].indexOf(response.statusCode) > -1) {
