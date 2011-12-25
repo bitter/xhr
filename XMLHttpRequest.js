@@ -323,7 +323,7 @@ module.exports = XMLHttpRequest = (function() {
     },
     getResponseHeader: function(header) {
       if(this.readyState <= 1 || this._vars.errorflag) return null;
-      for(i in header) if(header.charCodeAt(i) > 0XFF) return null;
+      for(var i in header) if(header.charCodeAt(i) > 0XFF) return null;
       header = header.toLowerCase();
       if(this.filterHeaders && ['set-cookie', 'set-cookie2'].indexOf(header) > -1) return null;
       if(!this._vars.responseHeaders[header]) return null;
