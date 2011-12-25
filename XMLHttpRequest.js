@@ -1,4 +1,4 @@
-var events = require('events'), URI = require('./lib/URI/uris.js');
+var events = require('events'), URL = require('url');
 
 module.exports = XMLHttpRequest = (function() {
   function nodeXHR(xhr) {
@@ -15,11 +15,11 @@ module.exports = XMLHttpRequest = (function() {
         xhr.upload._sendProgressEvent('loadend', false, 0, 0);
       }
     };
-    var port = xhr._vars.url.heirpart().authority().port(),
-        scheme = xhr._vars.url.scheme(),
-        host = xhr._vars.url.heirpart().authority().host(),
-        path = xhr._vars.url.heirpart().path(),
-        query = xhr._vars.url.querystring(),
+    var port = xhr._vars.url.port,
+        scheme = xhr._vars.url.protocol,
+        host = xhr._vars.url.host,
+        path = xhr._vars.url.pathname,
+        query = xhr._vars.url.search,
         secure = scheme == 'https:';
     if(!port) {
       if(scheme == 'http:') port = 80;
@@ -36,7 +36,7 @@ module.exports = XMLHttpRequest = (function() {
     request.on('error', _e); request.on('timeout', function(e) { _e(e,true) } );
     if(xhr._vars.abortsend) return request.destroy();
     if(xhr._vars.request != null) {
-      request.end( xhr._vars.request )
+      request.end( xhr._vars.request );
       xhr.upload._sendProgressEvent('progress', false, 0, 0);
     } else {
       request.end();
@@ -51,7 +51,7 @@ module.exports = XMLHttpRequest = (function() {
       };
       if(xhr.followRedirects && [301,302,303,307].indexOf(response.statusCode) > -1) {
         maybeAbort(true);
-        var newurl = xhr._vars.url.resolveReference(response.headers.location).toAbsolute();
+        var newurl = URL.resolve(xhr._vars.url, response.headers.location);
         if(xhr._vars.redirects.indexOf(newurl.toString()) > -1) {
           client.emit('error', new Error('NETWORK_ERR: DOM Exception 19 - Redirect Loop') );
           return;
@@ -238,9 +238,9 @@ module.exports = XMLHttpRequest = (function() {
       for(i in method) if(method.charCodeAt(i) > 0xFF) throw new Error('SYNTAX_ERR: DOM Exception 12 - invalid method ' + method);
       method = (['CONNECT','DELETE','GET','HEAD','OPTIONS','POST','PUT','TRACE','TRACK'].indexOf(method.toUpperCase()) > -1) ? method.toUpperCase() : method;
       if(['CONNECT','TRACE','TRACK'].indexOf(method) > -1) throw new Error('SECURITY_ERR: DOM Exception 18 - method not allowed ' + method);
-      url = new URI(url).toAbsolute();
-      if(['http:','https:'].indexOf(url.scheme()) == -1) throw new Error('SYNTAX_ERR: DOM Exception 12 - invalid url scheme ' + url.scheme());
-      temp = url.heirpart().authority().userinfo();
+      url = new URL(url);
+      if(['http:','https:'].indexOf(url.protocol) == -1) throw new Error('SYNTAX_ERR: DOM Exception 12 - invalid url scheme ' + url.protocol);
+      temp = url.auth;
       if(temp) {
         temp = temp.split(':');
         tempuser = temp[0];
