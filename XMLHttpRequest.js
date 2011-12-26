@@ -28,7 +28,7 @@ module.exports = XMLHttpRequest = (function() {
     if(!path) path = '/';
     if(query) path += query;
     xhr._vars.headers['Host'] = host;
-    xhr._vars.redirects.push(xhr._vars.url.toString());
+    xhr._vars.redirects.push(xhr._vars.url.href);
     var http = require('http');
     var client = http.createClient(port, host, secure);
     client.on('error', _e); client.on('timeout', function(e) { _e(e,true) } );
@@ -51,8 +51,8 @@ module.exports = XMLHttpRequest = (function() {
       };
       if(xhr.followRedirects && [301,302,303,307].indexOf(response.statusCode) > -1) {
         maybeAbort(true);
-        var newurl = URL.resolve(xhr._vars.url, response.headers.location);
-        if(xhr._vars.redirects.indexOf(newurl.toString()) > -1) {
+        var newurl = URL.parse(URL.resolve(xhr._vars.url, response.headers.location));
+        if(xhr._vars.redirects.indexOf(newurl.href) > -1) {
           client.emit('error', new Error('NETWORK_ERR: DOM Exception 19 - Redirect Loop') );
           return;
         }
