@@ -238,7 +238,7 @@ module.exports = XMLHttpRequest = (function() {
       for(i in method) if(method.charCodeAt(i) > 0xFF) throw new Error('SYNTAX_ERR: DOM Exception 12 - invalid method ' + method);
       method = (['CONNECT','DELETE','GET','HEAD','OPTIONS','POST','PUT','TRACE','TRACK'].indexOf(method.toUpperCase()) > -1) ? method.toUpperCase() : method;
       if(['CONNECT','TRACE','TRACK'].indexOf(method) > -1) throw new Error('SECURITY_ERR: DOM Exception 18 - method not allowed ' + method);
-      url = new URL(url);
+      url = URL.parse(url);
       if(['http:','https:'].indexOf(url.protocol) == -1) throw new Error('SYNTAX_ERR: DOM Exception 12 - invalid url scheme ' + url.protocol);
       temp = url.auth;
       if(temp) {
